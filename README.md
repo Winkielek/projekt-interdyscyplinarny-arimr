@@ -1,3 +1,3 @@
 # Projekt interdyscyplinarny kryptonim "rzepak"
 
-- CREODIAS_client: skrypt i klucz do serwera od QED
+- CREODIAS_client: skrypty od QED
