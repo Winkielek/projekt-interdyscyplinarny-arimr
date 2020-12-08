@@ -1,7 +1,8 @@
 from tensorflow.keras.preprocessing.image import ImageDataGenerator, array_to_img, img_to_array, load_img
 
-def alter(photo_path,output_directory,amount)
-    ''' Podajemy kolejno ścieżkę do konkretnego zdjęcia, folder do którego zmienione zdjęcia będą ładowane oraz ilość zdjęć,
+def alter(photo_path,output_directory,amount,prefix):
+    ''' 
+    Podajemy kolejno ścieżkę do konkretnego zdjęcia, folder do którego zmienione zdjęcia będą ładowane oraz ilość zdjęć,
     które chcemy uzyskać. Należy uprzednio utworzyć folder, do którego zdjęcia mają być wrzucane.
     '''
     datagen = ImageDataGenerator(
@@ -18,8 +19,7 @@ def alter(photo_path,output_directory,amount)
     x = x.reshape((1,) + x.shape)  
 
     i = 0
-    for batch in datagen.flow(x, batch_size=1,
-                          save_to_dir=output_directory, save_prefix='rzepak', save_format='jpeg'):
-    i += 1
-    if i > amount:
-        break  
+    for batch in datagen.flow(x, batch_size=1, save_to_dir=output_directory, save_prefix=prefix, save_format='jpg'):
+        i += 1
+        if i > amount:
+            break  
