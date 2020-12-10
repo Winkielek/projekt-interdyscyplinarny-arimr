@@ -18,8 +18,10 @@ def alter(photo_path,output_directory,amount,prefix):
     x = img_to_array(img)  
     x = x.reshape((1,) + x.shape)  
 
+    imageGen = datagen.flow(x, batch_size=1, save_to_dir=output_directory, save_prefix=prefix, save_format='jpg') #added seed for reproducibility [pf]
+    
     i = 0
-    for batch in datagen.flow(x, batch_size=1, save_to_dir=output_directory, save_prefix=prefix, save_format='jpg'):
+    for x in imageGen:
         i += 1
-        if i > amount:
-            break  
+        if i == amount:
+            break

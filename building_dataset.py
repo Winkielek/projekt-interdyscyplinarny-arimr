@@ -1,3 +1,8 @@
+from numpy.random import seed
+seed(1)
+import tensorflow as tf
+tf.random.set_seed(123)
+
 from augmentation import alter
 import os
 import random
@@ -22,6 +27,11 @@ def build_dataset(test_sample_fraction: float = 0.2, amount_rzepak: int = 6, amo
         os.mkdir("./dataset/")
         os.mkdir("./dataset/train/")
         os.mkdir("./dataset/valid/")
+        os.mkdir("./dataset/train/rzepak")
+        os.mkdir("./dataset/valid/rzepak")
+        os.mkdir("./dataset/train/nierzepak")
+        os.mkdir("./dataset/valid/nierzepak")
+        
 
     #train-valid sets splitting    
     rzepak_train_id, rzepak_valid_id = train_test_split(range(len(rzepak_pictures)), test_size = test_sample_fraction, random_state = 123)
@@ -30,17 +40,17 @@ def build_dataset(test_sample_fraction: float = 0.2, amount_rzepak: int = 6, amo
 
     #powielenie zdjec rzepaku
     for i in rzepak_train_id:
-        alter("./data/rzepak/" + rzepak_pictures[i], "./dataset/train/", amount_rzepak, prefix = "rzepak")
+        alter("./data/rzepak/" + rzepak_pictures[i], "./dataset/train/rzepak", amount_rzepak, prefix = "rzepak")
     for i in rzepak_valid_id:
-        alter("./data/rzepak/" + rzepak_pictures[i], "./dataset/valid/", amount_rzepak, prefix = "rzepak")
+        alter("./data/rzepak/" + rzepak_pictures[i], "./dataset/valid/rzepak", amount_rzepak, prefix = "rzepak")
     
     #powielenie zdjec nierzepaku
     for i in nierzepak_train_id:
-        alter("./data/nierzepak/" + nierzepak_pictures[i], "./dataset/train/", amount_nierzepak, prefix = "nierzepak")
+        alter("./data/nierzepak/" + nierzepak_pictures[i], "./dataset/train/nierzepak", amount_nierzepak, prefix = "nierzepak")
     for i in nierzepak_valid_id:
-        alter("./data/nierzepak/" + nierzepak_pictures[i], "./dataset/valid/", amount_nierzepak, prefix = "nierzepak")
+        alter("./data/nierzepak/" + nierzepak_pictures[i], "./dataset/valid/nierzepak", amount_nierzepak, prefix = "nierzepak")
     
     return
 
 #RUN FUNCTION - budowanie zbioru uczacego
-#build_dataset()
+build_dataset()
