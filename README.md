@@ -12,5 +12,5 @@
 - Ładowanie sieci:
 ```
 from tensorflow import keras
-model = keras.models.load_model('path/to/location')
+model = keras.models.load_model('trained_NN')
 ```
