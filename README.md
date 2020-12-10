@@ -9,4 +9,8 @@
     - sampling podziału train/valid reprodukowalny z użyciem random_state
     - [issue](https://github.com/Winkielek/projekt_interdyscyplinarny_arimr/issues/3#issue-759278752) reprodukowalność powielania zdjęć
     
- 
+- Ładowanie sieci:
+```
+from tensorflow import keras
+model = keras.models.load_model('path/to/location')
+```
