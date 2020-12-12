@@ -4,28 +4,56 @@ import dash
 from dash.dependencies import Input, Output, State
 import dash_core_components as dcc
 import dash_html_components as html
+from functions.model_functions import predict_with_loaded_model
+from functions.model_functions.from_id_pipeline import get_photo_from_id
+import os
+import base64
+from flask import Flask
+from tensorflow.keras.preprocessing import image
+
+
+UPLOAD_DIRECTORY = "/save_images"
+
+if not os.path.exists(UPLOAD_DIRECTORY):
+    os.makedirs(UPLOAD_DIRECTORY)
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
-app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
+server = Flask(__name__)
+app = dash.Dash(__name__, server=server, external_stylesheets=external_stylesheets)
 app.css.config.serve_locally = True
 app.scripts.config.serve_locally = True
 
-true = html.Span(id = "true", className = "icon", children = "✔️")
-false = html.Span(id = "false", className = "icon", children = "❌")
+true = html.Span(id="true", className="icon", children="✔️")
+false = html.Span(id="false", className="icon", children="❌")
+
+def save_file(name, content):
+    """Decode and store a file uploaded with Plotly Dash."""
+    data = content.encode("utf8").split(b";base64,")[1]
+    with open(os.path.join(UPLOAD_DIRECTORY, name), "wb") as fp:
+        fp.write(base64.decodebytes(data))
+
+def uploaded_files():
+    """List the files in the upload directory."""
+    files = []
+    for filename in os.listdir(UPLOAD_DIRECTORY):
+        path = os.path.join(UPLOAD_DIRECTORY, filename)
+        if os.path.isfile(path):
+            files.append(filename)
+    return files
 
 app.layout = html.Div(
-    id = "container",
-    children = [
+    id="container",
+    children=[
         html.Div(
-            id = 'banner',
-            children = [
+            id='banner',
+            children=[
                 html.H1("ARiMR - rozpoznawanie rzepaku 🌾")
             ]
         ),
         html.Div(
-            id = "div_1",
-            children = [
+            id="div_1",
+            children=[
                 html.H2("1. Na podstawie zdjęcia"),
                 dcc.Upload(
                     id='upload-image',
@@ -49,61 +77,75 @@ app.layout = html.Div(
                 html.Div(id="output-image-text"),
                 html.Div(id='output-image-upload'),
                 html.Button('Oceń', id='button_photo'),
-                html.Div(id='ocena_photo', className = 'ocena'),
+                html.Div(id='ocena_photo', className='ocena'),
             ]
         ),
         html.Div(
-            id = "div_2",
-            children = [
+            id="div_2",
+            children=[
                 html.H2("2. Podaj numer działki"),
-                dcc.Input(id='numer_dzialki', value='', type='text',placeholder="Numer działki"),
+                dcc.Input(id='numer_dzialki', value='', type='text', placeholder="Numer działki"),
                 html.Br(),
                 html.Br(),
-                html.Button('Oceń ', id='button_number'),
-                html.Div(id='ocena_id', className = 'ocena')
-        ])]
+                html.Button('Oceń', id='button_number'),
+                html.Div(id='ocena_id', className='ocena')
+            ])]
 )
 
 
-def parse_contents(contents):
+def add_image_from_photo_content(first_photo_content):
     return html.Div([
-        html.Img(src=contents,style={'height':'auto', 'width':'auto'})
+        html.Img(src=first_photo_content, style={'height': 'auto', 'width': 'auto'})
     ])
 
 
 @app.callback(Output('output-image-upload', 'children'),
               Output('output-image-text', "children"),
               Input('upload-image', 'contents'))
-def update_output(photo):
-    if photo is not None:
-        photo = photo[0]
-        children = [parse_contents(photo)]
-        return children, html.H3("Wgrane zdjęcie:")
-
+def update_output(photo_content):
+    if photo_content is not None:
+        first_photo_content = photo_content[0]
+        html_image = [add_image_from_photo_content(first_photo_content)]
+        save_file("example_photo.png", first_photo_content)
+        return html_image, html.H3("Wgrane zdjęcie:")
+    else:
+        return None, None
 
 
 @app.callback(Output('ocena_photo', 'children'),
               Input('button_photo', 'n_clicks')
               )
-def update_output_based_on_photo(baton_clicks):
-    if baton_clicks!=None:
-        is_rzepak = False
+def update_output_based_on_photo(button_clicks):
+    if button_clicks is not None:
+        files = uploaded_files()
+        is_rzepak = predict_with_loaded_model(photo_path = os.path.join(UPLOAD_DIRECTORY, files[0]), model_path = "trained_NN")
+        if is_rzepak == 0: is_rzepak = True
+        else: is_rzepak = False
         if is_rzepak:
-            return [true, html.P(className='ocena_text', children = 'To jest rzepak!')]
+            return [true, html.P(className='ocena_text', children='To jest rzepak!')]
         else:
             return [false, html.P(className='ocena_text', children='To nie jest rzepak!')]
+    else:
+        return [None, None]
+
 
 
 @app.callback(Output('ocena_id', 'children'),
               Input('button_number', 'n_clicks'),
               Input('numer_dzialki', 'value'))
-def update_output_based_on_id(baton_clicks, numer_dzialki):
-    if baton_clicks!=None:
-        is_rzepak = True
+def update_output_based_on_id(button_clicks, numer_dzialki):
+    if button_clicks != None:
+        get_photo_from_id(numer_dzialki)
+        is_rzepak = predict_with_loaded_model(photo_path='../../cuted_photo.jpg', model_path="trained_NN")
+        if is_rzepak == 0:
+            is_rzepak = True
+        else:
+            is_rzepak = False
         if is_rzepak:
-            return [true, html.P(className='ocena_text', children = 'Na działce znajduje się rzepak!')]
+            return [true, html.P(className='ocena_text', children='Na działce znajduje się rzepak!')]
         else:
             return [false, html.P(className='ocena_text', children='Na działce nie ma rzepaku!')]
+
 
 if __name__ == '__main__':
     app.run_server(debug=True)
