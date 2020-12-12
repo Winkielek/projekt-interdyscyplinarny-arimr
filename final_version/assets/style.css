@@ -1,0 +1,25 @@
+#container{
+    width: 100%;
+}
+#div_1{
+    float: left;
+    width:50%;
+}
+#div_2{
+    float: right;
+    width:50%;
+}
+
+h1{
+    font-weight: bold;
+}
+
+.ocena_text{
+    font-size: 32px;
+    display: inline-block;
+}
+
+.icon{
+    display: inline-block;
+    font-size: 50px;
+}
