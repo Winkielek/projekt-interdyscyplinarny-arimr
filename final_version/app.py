@@ -73,7 +73,7 @@ def update_output_based_on_photo(baton_clicks):
 @app.callback(Output('ocena', 'children'),
               Input('button_number', 'n_clicks'),
               Input('numer_dzialki', 'value'))
-def update_output_based_on_id(baton_clicks,numer_dzialki):
+def update_output_based_on_id(baton_clicks, numer_dzialki):
     if baton_clicks!=None:
         is_rzepak = True
         return f'Czy na działce {numer_dzialki} jest rzepak? Odpowiedź to: {is_rzepak}'
