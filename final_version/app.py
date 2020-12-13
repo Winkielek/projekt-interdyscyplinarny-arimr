@@ -4,8 +4,8 @@ import dash
 from dash.dependencies import Input, Output, State
 import dash_core_components as dcc
 import dash_html_components as html
-#from functions.model_functions import predict_with_loaded_model
-#from functions.from_id_pipeline_no_imports import get_photo_from_id
+from functions.model_functions import predict_with_loaded_model
+from functions.from_id_pipeline_no_imports import get_photo_from_id
 import os
 import base64
 from flask import Flask
@@ -77,7 +77,11 @@ app.layout = html.Div(
                 html.Div(id="output-image-text"),
                 html.Div(id='output-image-upload'),
                 html.Button('Oceń', id='button_photo'),
-                html.Div(id='ocena_photo', className='ocena'),
+                dcc.Loading(
+                    id="loading-2",
+                    children=[html.Div(id='ocena_photo', className='ocena')],
+                    type="circle",
+                ),
             ]
         ),
         html.Div(
