@@ -11,7 +11,7 @@ def filelOrg(MAIN_FOLDER_PATH):
     foldersList = os.listdir('.') # for loop
 
     for folder in foldersList:
-        new_folder_path = './' + folder + '_extracted'
+        new_folder_path = MAIN_FOLDER_PATH + "/" + folder + '_extracted'
         os.mkdir(new_folder_path)
     
         meta_path = glob.glob('./' + folder + META_DATA_PATTERN, recursive = True)[0]

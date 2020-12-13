@@ -1,17 +1,6 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[30]:
-
-
-from tensorflow import keras
-import tensorflow.keras.preprocessing.image as image
-import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
-
-
-# In[ ]:
+import tensorflow.keras.preprocessing.image as image
+from tensorflow import keras
 
 
 def predict_with_loaded_model(photo_path, model_path="trained_NN"):

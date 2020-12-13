@@ -1,9 +1,7 @@
 import os
-import rasterio
-from rasterio import plot
-import matplotlib.pyplot as plt
-from osgeo import gdal
 import xml.etree.ElementTree as ET
+
+from osgeo import gdal
 
 
 def cut_plot(photo_path,XML_path, output_path, xmin, ymin, xmax, ymax):

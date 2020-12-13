@@ -4,8 +4,8 @@ import dash
 from dash.dependencies import Input, Output, State
 import dash_core_components as dcc
 import dash_html_components as html
-from functions.model_functions import predict_with_loaded_model
-from functions.model_functions.from_id_pipeline import get_photo_from_id
+#from functions.model_functions import predict_with_loaded_model
+#from functions.from_id_pipeline_no_imports import get_photo_from_id
 import os
 import base64
 from flask import Flask
