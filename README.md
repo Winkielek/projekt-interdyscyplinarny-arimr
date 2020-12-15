@@ -26,4 +26,4 @@ Jak się zbuduje to piszemy:
 ```
 sudo docker-compose up
 ```
-i klikamy w linka od apki dashowej
+i klikamy w linka od apki dashowej.
