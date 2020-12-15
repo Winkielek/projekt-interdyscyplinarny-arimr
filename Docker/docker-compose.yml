@@ -6,7 +6,7 @@ services:
     image: rzepak:1.0.0
     container_name: rzepak
     ports:
-      - "80:5050"
+      - "5000:5000"
     environment:
       - TARGET=LIVE
     restart: unless-stopped
