@@ -1,0 +1,12 @@
+version: "3.7"
+services:
+  rzepak:
+    build:
+      context: .
+    image: rzepak:1.0.0
+    container_name: rzepak
+    ports:
+      - "80:5050"
+    environment:
+      - TARGET=LIVE
+    restart: unless-stopped
