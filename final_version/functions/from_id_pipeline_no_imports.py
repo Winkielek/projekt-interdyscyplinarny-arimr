@@ -189,4 +189,4 @@ def get_photo_from_id(id):
     return
 
 
-get_photo_from_id("120906_2.0003.2761/2")
+#get_photo_from_id("120906_2.0003.2761/2")
