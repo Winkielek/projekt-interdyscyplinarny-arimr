@@ -1,5 +1,5 @@
 import requests
-
+from shapely import wkb
 
 # A BTW WOLNE STRASZNIE DA SIĘ TO JAKOŚ PRZYŚPIESZYĆ UŻYWJAĆ SESIJ ALE TO TODO
 
@@ -26,7 +26,7 @@ def cord_reader(plot_ids_list):
 
         response1 = requests.get('https://uldk.gugik.gov.pl/?request=GetParcelById&id=' + i) # WKB
 
-        from shapely import wkb
+        
         hexlocation = response1.text[2:len(response1.text)-1]
         point = wkb.loads(hexlocation, hex=True)
         x_y=point.exterior.coords.xy
