@@ -29,3 +29,8 @@ sudo docker-compose up
 i klikamy w linka od apki dashowej.
 
 - nowy kod (funkcje etc.) powinien być docelowo updejtowany do folderu /Docker i prawidłowo funkcjonować w środowisku dockerowym
+Po odpaleniu apki komenda
+```
+sudo docker exec -it rzepak bash
+```
+odpala terminal bashowy w którym można sobie odpalić co dusza zapragnie.
