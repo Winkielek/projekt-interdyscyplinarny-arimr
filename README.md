@@ -17,7 +17,7 @@ model = keras.models.load_model('trained_NN')
 - Odpalenie Dockera:
 Aby go odpalić należy najpierw pobrać samego Dockera. Nas interesuje Docker Enigne(https://docs.docker.com/engine/install/ubuntu/), 
 a także Docker-Compose(https://docs.docker.com/compose/install/)
-Wrzucamy w jeden folder foldery functions oraz trained_NN. Następnie klepiemy komendę:
+Wchodzimy do foldera /Docker. Następnie klepiemy komendę:
 ```
 sudo docker-compose build
 ```
@@ -27,3 +27,5 @@ Jak się zbuduje to piszemy:
 sudo docker-compose up
 ```
 i klikamy w linka od apki dashowej.
+
+- nowy kod (funkcje etc.) powinien być docelowo updejtowany do folderu /Docker i prawidłowo funkcjonować w środowisku dockerowym
