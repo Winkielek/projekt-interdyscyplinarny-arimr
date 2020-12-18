@@ -190,3 +190,51 @@ def get_photo_from_id(id):
 
 
 #get_photo_from_id("120906_2.0003.2761/2")
+
+
+def checkForClouds(startDate,completionDate,lat,lon):
+    #startDate - np. 2020-05-16 - String 
+    #completionDate - np. 2020-05-18 - String
+    #lat - np. 51.851296 - float
+    #lon - np. 20.185202 - float
+    #output: Posortowana rosnąco względem cloudCover lista zdjęć danego miejsca w danym przedziale czasowym.
+    
+    #pomocnicza funkcja
+    def expectedPages(nRes):
+        #nRes - liczba zdjęć
+        # output: liczba stron, domyślnie po 20 zdjęć na stronie
+    out = nRes//20
+    if(nRes%20!=0):
+        out = out + 1
+    return out
+    
+    #link
+    link = "https://finder.creodias.eu/resto/api/collections/Sentinel2/search.json?_pretty=true"
+    link = link + "&lat=" + str(lat)
+    link = link + "&lon=" + str(lon)
+    link = link + "&startDate=" + startDate
+    link = link + "&completionDate=" + completionDate
+    #Przykładowy link:
+    #"https://finder.creodias.eu/resto/api/collections/Sentinel2/search.json?_pretty=true&lat=51.851296&lon=20.185202&startDate=2020-05-16&completionDate=2020-05-18"
+    
+    with open(wget.download(link)) as f:
+        data = json.load(f)
+    numberOfResults = data["properties"]['totalResults']
+    numberOfPages = expectedPages(numberOfResults)
+    os.remove("search.json") 
+    res = [None]*(numberOfResults)
+    
+    for i in range(1,numberOfPages+1):
+        linkPage = link + "&page=" + str(i)
+        with open(wget.download(linkPage)) as f:
+            data = json.load(f)
+        if(i<numberOfPages):
+            lim = 20
+        else:
+            lim = numberOfResults%20
+        for j in range(lim):
+            res[(i-1)*20 + j] = data["features"][j]['properties']['cloudCover']
+        os.remove("search.json") 
+    res.sort()
+    return res
+    
