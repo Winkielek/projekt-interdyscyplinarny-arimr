@@ -206,7 +206,7 @@ def get_photo_from_id(id):
 #test
 #get_photo_from_id("120906_2.0003.2761/2")
 #test z cache
-get_photo_from_id("021705_5.0007.129")
+#get_photo_from_id("021705_5.0007.129")
 
 
 def checkForClouds(startDate,completionDate,lat,lon):
