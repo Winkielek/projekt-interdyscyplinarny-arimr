@@ -1,4 +1,4 @@
-# Projekt interdyscyplinarny kryptonim "rzepak"
+# Projekt interdyscyplinarny - kryptonim "rzepak"
 
 - CREODIAS_client: skrypty od QED
 - /data: folder z danymi (zdjęciami) wyciętych działek do zbioru uczącego
