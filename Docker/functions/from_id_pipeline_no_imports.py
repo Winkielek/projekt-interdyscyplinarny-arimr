@@ -203,13 +203,13 @@ def checkForClouds(startDate,completionDate,lat,lon):
     def expectedPages(nRes):
         #nRes - liczba zdjęć
         # output: liczba stron, domyślnie po 20 zdjęć na stronie
-    out = nRes//20
-    if(nRes%20!=0):
-        out = out + 1
-    return out
+        out = nRes//20
+        if(nRes%20!=0):
+            out = out + 1
+        return out
     
     #link
-    link = "https://finder.creodias.eu/resto/api/collections/Sentinel2/search.json?_pretty=true"
+    link = "https://finder.creodias.eu/resto/api/collections/Sentinel2/search.json?_pretty=true&processingLevel=LEVEL1C"
     link = link + "&lat=" + str(lat)
     link = link + "&lon=" + str(lon)
     link = link + "&startDate=" + startDate
