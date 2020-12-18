@@ -106,7 +106,7 @@ def rmtree(top):
 
 def filelOrg(MAIN_FOLDER_PATH):
 
-        # MAIN_FOLDER_PATH = 'C:/Users/01121832/Documents/test' # MUST BE CHANGED directory of all data directories
+    # MAIN_FOLDER_PATH = 'C:/Users/01121832/Documents/test' # MUST BE CHANGED directory of all data directories
     META_DATA_PATTERN = '/**/*TL.xml'
     IMG_DATA_PATTERN = '/**/*TCI.jp2'
 
@@ -157,39 +157,56 @@ def get_photo_from_id(id):
     x_to_download = (x_min + x_max) / 2
     y_to_download = (y_min + y_max) / 2
 
-    download_data(str(y_to_download), str(x_to_download), date_from="2020-05-01", date_to="2020-05-31", cloud_value=50,
-                  folder_name="FOTO", records_per_image="1")
+    #checking if cache is present (cahce jest DIY tzn trzeba sb pobrać instrukcja w readmie)
+    if(os.path.exists("./cache_data/cache_photo.jp2") and os.path.exists("./cache_data/MTD_TL.xml")):
+        #checking in cached photo
+        if (16.4388767944047 < x_to_download < 17.953869713140705) and (50.45527216066188 < y_to_download < 51.41234265506691): 
+            #ew do poprawy jeśli w dockerze inne ścieżki
+            image_path = "./cache_data/cache_photo.jp2"
+            XML_path = "./cache_data/MTD_TL.xml"
+            #flaga bo później niepotrzebne usuwanie danych
+            pic_from_cache_flag = True
+    
+    else:
+        #flaga usuwanie danych
+        pic_from_cache_flag = False
 
-    # sciezka do poprawy
-    photo_folder_path = 'download/' + os.listdir('download')[0]
+        download_data(str(y_to_download), str(x_to_download), date_from="2020-05-01", date_to="2020-05-31", cloud_value=50, 
+                        folder_name="FOTO", records_per_image="1")
 
-    try:
-        filelOrg(photo_folder_path)
-    except:
-        pass
-    print('dupa')
+        # sciezka do poprawy
+        photo_folder_path = 'download/' + os.listdir('download')[0]
 
-    # sklejanie scieżki
-    path_to_photos = "download/"
-    for i in range(2):
-        path_to_photos += str(os.listdir(path_to_photos)[0] + "/")
+        try:
+            filelOrg(photo_folder_path)
+        except:
+            pass
+        print('dupa')
 
-    for file_inside in os.listdir(path_to_photos):
-        if "TCI" in file_inside:
-            image_path = path_to_photos + file_inside
-        if "MTD" in file_inside:
-            XML_path = path_to_photos + file_inside
+        # sklejanie scieżki
+        path_to_photos = "download/"
+        for i in range(2):
+            path_to_photos += str(os.listdir(path_to_photos)[0] + "/")
+
+        for file_inside in os.listdir(path_to_photos):
+            if "TCI" in file_inside:
+                image_path = path_to_photos + file_inside
+            if "MTD" in file_inside:
+                XML_path = path_to_photos + file_inside
 
     print("dupa")
 
     cut_plot(image_path, XML_path, 'cuted_photo.jpg', x_min, y_min, x_max, y_max)
 
-    rmtree("download/")
+    if(pic_from_cache_flag == False):
+        rmtree("download/")
 
     return
 
-
+#test
 #get_photo_from_id("120906_2.0003.2761/2")
+#test z cache
+get_photo_from_id("021705_5.0007.129")
 
 
 def checkForClouds(startDate,completionDate,lat,lon):
