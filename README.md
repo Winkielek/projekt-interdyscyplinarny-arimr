@@ -1,4 +1,4 @@
-# Projekt interdyscyplinarny kryptonim "rzepak"
+# Projekt interdyscyplinarny - kryptonim "rzepak"
 
 - CREODIAS_client: skrypty od QED
 - /data: folder z danymi (zdjęciami) wyciętych działek do zbioru uczącego
@@ -29,8 +29,15 @@ sudo docker-compose up
 i klikamy w linka od apki dashowej.
 
 - nowy kod (funkcje etc.) powinien być docelowo updejtowany do folderu /Docker i prawidłowo funkcjonować w środowisku dockerowym
+
 Po odpaleniu apki komenda
 ```
 sudo docker exec -it rzepak bash
 ```
 odpala terminal bashowy w którym można sobie odpalić co dusza zapragnie.
+
+Do apki został dodany pseudo cache, ale jest za duży na wrzucenie na gita, jeśli chcemy cache to pobieramy folder:
+
+- [cache_data](https://drive.google.com/drive/folders/1NGIl9nzcuq5v7NMqpAONEwTcmPLIckpY?usp=sharing)
+
+umieszczamy go w folderze Docker (bez tego cache też powinno działać).
