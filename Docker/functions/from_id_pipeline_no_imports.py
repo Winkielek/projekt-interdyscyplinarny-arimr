@@ -141,8 +141,8 @@ def get_photo_from_id(id):
 
     for i in cord_PUGW:
         cord_str = i.split(" ")
-        x_temp = cord_str[0]
-        y_temp = cord_str[1]
+        x_temp = cord_str[1]
+        y_temp = cord_str[0]
 
         x, y = converter(x_temp, y_temp)
 
