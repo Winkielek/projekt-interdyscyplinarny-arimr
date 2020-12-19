@@ -11,7 +11,19 @@ import warnings
 warnings.filterwarnings("ignore", category=FutureWarning)
 
 
-def cord_reader(plot_ids_list: list):
+def cord_reader(plot_ids_list: list) -> dict:
+    """[summary]
+
+    Args:
+        plot_ids_list (list): [description]
+
+    Raises:
+        Exception: [description]
+        Exception: [description]
+
+    Returns:
+        dict: [description]
+    """
     # Taking list contaings plots ID as strings
     # example ["260101_5.0037.569"]
 
@@ -50,7 +62,16 @@ def cord_reader(plot_ids_list: list):
     return res
 
 
-def converter(x_in, y_in):
+def converter(x_in: float, y_in: float) -> tuple:
+    """[summary]
+
+    Args:
+        x_in (float): [description]
+        y_in (float): [description]
+
+    Returns:
+        tuple: [description]
+    """
     input_proj = pyproj.Proj(init="epsg:2180")
     output_proj = pyproj.Proj(init="epsg:4326")
 
@@ -58,11 +79,25 @@ def converter(x_in, y_in):
     return (x_out, y_out)
 
 
-def cut_plot(photo_path, XML_path, output_path, xmin, ymin, xmax, ymax):
-    """
-    photo_dir_path: sciezka do katalogu surowa_paczka.SAFE
-    output_path: sciezka pliku wycietego zdjecia np.: zdjecie.png
-    xmin, ymin, xmax, ymax: wspolrzedne prostokata do wyciecia
+def cut_plot(
+    photo_path: str,
+    XML_path: str,
+    output_path: str,
+    xmin: float,
+    ymin: float,
+    xmax: float,
+    ymax: float,
+):
+    """[summary]
+
+    Args:
+        photo_path (str): sciezka do katalogu surowa_paczka.SAFE
+        XML_path (str): [description]
+        output_path (str): sciezka pliku wycietego zdjecia np.: zdjecie.png
+        xmin (float): wspolrzedne prostokata do wyciecia
+        ymin (float): wspolrzedne prostokata do wyciecia
+        xmax (float): wspolrzedne prostokata do wyciecia
+        ymax (float): wspolrzedne prostokata do wyciecia
     """
 
     # XML part
@@ -102,7 +137,12 @@ def cut_plot(photo_path, XML_path, output_path, xmin, ymin, xmax, ymax):
     return
 
 
-def rmtree(top):
+def rmtree(top: str) -> None:
+    """[summary]
+
+    Args:
+        top (str): [description]
+    """
     for root, dirs, files in os.walk(top, topdown=False):
         for name in files:
             filename = os.path.join(root, name)
@@ -111,9 +151,15 @@ def rmtree(top):
         for name in dirs:
             os.rmdir(os.path.join(root, name))
     os.rmdir(top)
+    return
 
 
-def filelOrg(MAIN_FOLDER_PATH):
+def filelOrg(MAIN_FOLDER_PATH: str) -> None:
+    """[summary]
+
+    Args:
+        MAIN_FOLDER_PATH (str): [description]
+    """
 
     # MAIN_FOLDER_PATH = 'C:/Users/01121832/Documents/test' # MUST BE CHANGED directory of all data directories
     META_DATA_PATTERN = "/**/*TL.xml"
@@ -140,14 +186,25 @@ def filelOrg(MAIN_FOLDER_PATH):
 
 
 def download_data(
-    latitude,
-    longitude,
-    date_from,
-    date_to,
-    folder_name,
+    latitude: float,
+    longitude: float,
+    date_from: str,
+    date_to: str,
+    folder_name: str,
     cloud_value: int,
     records_per_image: str = 1,
-):
+) -> None:
+    """[summary]
+
+    Args:
+        latitude (float): [description]
+        longitude (float): [description]
+        date_from (str): [description]
+        date_to (str): [description]
+        folder_name (str): [description]
+        cloud_value (int): [description]
+        records_per_image (str, optional): [description]. Defaults to 1.
+    """
     os.system(
         "python ./functions/CREODIAS_client/client.py -f -s Sentinel2 -l LEVEL1C -r 1 -c "
         + str(cloud_value)
@@ -165,7 +222,12 @@ def download_data(
     return
 
 
-def get_photo_from_id(id):
+def get_photo_from_id(id: str) -> None:
+    """[summary]
+
+    Args:
+        id (str): [description]
+    """
     id = str(id)
     cord_PUGW = cord_reader([id])[id]
     x_cords = []
@@ -250,12 +312,18 @@ def get_photo_from_id(id):
 # get_photo_from_id("021705_5.0007.129")
 
 
-def checkForClouds(startDate, completionDate, lat, lon):
-    # startDate - np. 2020-05-16 - String
-    # completionDate - np. 2020-05-18 - String
-    # lat - np. 51.851296 - float
-    # lon - np. 20.185202 - float
-    # output: Posortowana rosnąco względem cloudCover lista zdjęć danego miejsca w danym przedziale czasowym.
+def checkForClouds(startDate: str, completionDate: str, lat: float, lon: float) -> list:
+    """[summary]
+
+    Args:
+        startDate (str): np. 2020-05-16
+        completionDate (str): np. 2020-05-18
+        lat (float): np. 51.851296
+        lon (float): np. 20.185202
+
+    Returns:
+        list: Posortowana rosnąco względem cloudCover lista zdjęć danego miejsca w danym przedziale czasowym.
+    """
 
     # pomocnicza funkcja
     def expectedPages(nRes):
