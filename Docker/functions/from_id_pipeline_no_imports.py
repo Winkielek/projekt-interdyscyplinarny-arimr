@@ -3,10 +3,11 @@ import os
 import shutil
 import stat
 import xml.etree.ElementTree as ET
-
 import gdal
 import pyproj
 import requests
+import warnings
+warnings.filterwarnings("ignore", category=FutureWarning)
 
 
 def cord_reader(plot_ids_list):
@@ -128,7 +129,7 @@ def filelOrg(MAIN_FOLDER_PATH):
 
 def download_data(latitude, longitude, date_from, date_to, folder_name, cloud_value: int, records_per_image: str = 1):
     os.system(
-        'python ./CREODIAS_client/client.py -f -s Sentinel2 -l LEVEL1C -r 1 -c ' + str(cloud_value) + ' -p ' + str(
+        'python ./functions/CREODIAS_client/client.py -f -s Sentinel2 -l LEVEL1C -r 1 -c ' + str(cloud_value) + ' -p ' + str(
             longitude) + ',' + str(latitude) + ' -t ' + date_from + ' -e ' + date_to + ' -n ' + folder_name)
     return
 
@@ -174,8 +175,9 @@ def get_photo_from_id(id):
         download_data(str(y_to_download), str(x_to_download), date_from="2020-05-01", date_to="2020-05-31", cloud_value=50, 
                         folder_name="FOTO", records_per_image="1")
 
+        print(os.listdir())
         # sciezka do poprawy
-        photo_folder_path = 'download/' + os.listdir('download')[0]
+        photo_folder_path = './download/' + os.listdir('./download')[0]
 
         try:
             filelOrg(photo_folder_path)
@@ -184,7 +186,7 @@ def get_photo_from_id(id):
         print('dupa')
 
         # sklejanie scieżki
-        path_to_photos = "download/"
+        path_to_photos = "./download/"
         for i in range(2):
             path_to_photos += str(os.listdir(path_to_photos)[0] + "/")
 
@@ -199,7 +201,7 @@ def get_photo_from_id(id):
     cut_plot(image_path, XML_path, 'cuted_photo.jpg', x_min, y_min, x_max, y_max)
 
     if(pic_from_cache_flag == False):
-        rmtree("download/")
+        rmtree("./download/")
 
     return
 

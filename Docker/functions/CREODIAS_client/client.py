@@ -106,7 +106,7 @@ def main(argv):
         print('Select prepare mode (-f, --find) or download mode (-d, --download) or delete mode (-x, --delete)')
         exit(0)
 
-    cloudferro_remote = CloudferroRemoteClient(creodias['uni'], 'keys/uni_key', ignore_check=True)
+    cloudferro_remote = CloudferroRemoteClient(creodias['uni'], './functions/CREODIAS_client/keys/uni_key', ignore_check=True)
 
     if flags['only_download']:
         cloudferro_remote.download_prepared()

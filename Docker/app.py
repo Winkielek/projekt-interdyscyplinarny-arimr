@@ -12,6 +12,9 @@ from flask import Flask
 from tensorflow.keras.preprocessing import image
 
 
+
+
+
 UPLOAD_DIRECTORY = "/save_images"
 
 if not os.path.exists(UPLOAD_DIRECTORY):
@@ -140,7 +143,7 @@ def update_output_based_on_photo(button_clicks):
 def update_output_based_on_id(button_clicks, numer_dzialki):
     if button_clicks != None:
         get_photo_from_id(numer_dzialki)
-        is_rzepak = predict_with_loaded_model(photo_path='../../cuted_photo.jpg', model_path="trained_NN")
+        is_rzepak = predict_with_loaded_model(photo_path='./cuted_photo.jpg', model_path="trained_NN")
         if is_rzepak == 0:
             is_rzepak = True
         else:
@@ -153,3 +156,25 @@ def update_output_based_on_id(button_clicks, numer_dzialki):
 
 if __name__ == '__main__':
     app.run_server(host='0.0.0.0', port=5000, debug=True)
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
