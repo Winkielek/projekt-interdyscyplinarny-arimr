@@ -96,13 +96,19 @@ app.layout = html.Div(
                 ),
                 html.Br(),
                 html.Br(),
-                html.Iframe(
-                    id="iframe_map",
-                    style={
-                        "width": "300px",
-                        "height": "300px",
-                    },
-                    hidden=True,
+                html.Div(
+                    id="wrapper_iframe_photo",
+                    children=[
+                        html.Iframe(
+                            id="iframe_map",
+                            style={
+                                "width": "300px",
+                                "height": "300px",
+                            },
+                            hidden=True,
+                        ),
+                        html.Div(id="cutted-photo"),
+                    ],
                 ),
                 html.Br(),
                 html.Button("Oceń", id="button_number"),
@@ -184,6 +190,7 @@ def update_output_based_on_photo(button_clicks):
 
 @app.callback(
     Output("ocena_id", "children"),
+    Output("cutted-photo", "children"),
     Input("button_number", "n_clicks"),
     Input("numer_dzialki", "value"),
 )
@@ -203,12 +210,14 @@ def update_output_based_on_id(button_clicks, numer_dzialki):
                 html.P(
                     className="ocena_text", children="Na działce znajduje się rzepak!"
                 ),
-            ]
+            ], html.Img(src="./cuted_photo.jpg")
         else:
             return [
                 false,
                 html.P(className="ocena_text", children="Na działce nie ma rzepaku!"),
-            ]
+            ], html.Img(src="./cuted_photo.jpg")
+    else:
+        return None, None
 
 
 if __name__ == "__main__":
