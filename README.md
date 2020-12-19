@@ -1,5 +1,8 @@
 # Projekt interdyscyplinarny - kryptonim "rzepak"
 
+
+
+
 - CREODIAS_client: skrypty od QED
 - /data: folder z danymi (zdjęciami) wyciętych działek do zbioru uczącego
 - building_dataset.py: funkcja do zbudowania zbioru uczącego lokalnie:
@@ -14,6 +17,10 @@
 from tensorflow import keras
 model = keras.models.load_model('trained_NN')
 ```
+
+ABY DZIAŁAŁO NALEŻY POBRAĆ FOLDER KEYS I WRZUCIĆ DO CREODIAS CLIENT 
+Tutaj mozna je pobrać:
+https://cdn.discordapp.com/attachments/782536177353228299/787757906627002468/CREODIAS_client_2.zip
 - Odpalenie Dockera:
 Aby go odpalić należy najpierw pobrać samego Dockera. Nas interesuje Docker Enigne(https://docs.docker.com/engine/install/ubuntu/), 
 a także Docker-Compose(https://docs.docker.com/compose/install/)
