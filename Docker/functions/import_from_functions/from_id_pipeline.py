@@ -8,8 +8,6 @@ from image_download import download_data
 from import_plot_cord import cord_reader
 
 
-
-
 def get_photo_from_id(id: list):
     id = str(id)
 
@@ -37,17 +35,24 @@ def get_photo_from_id(id: list):
     x_to_download = (x_min + x_max) / 2
     y_to_download = (y_min + y_max) / 2
 
-    download_data(str(y_to_download), str(x_to_download), date_from="2020-05-01", date_to="2020-05-31", cloud_value=50,
-                  folder_name="FOTO", records_per_image="1")
-    # sciezka do poprawy 
+    download_data(
+        str(y_to_download),
+        str(x_to_download),
+        date_from="2020-05-01",
+        date_to="2020-05-31",
+        cloud_value=50,
+        folder_name="FOTO",
+        records_per_image="1",
+    )
+    # sciezka do poprawy
 
-    photo_folder_path = 'download/' + os.listdir('download')[0]
+    photo_folder_path = "download/" + os.listdir("download")[0]
 
     try:
         filelOrg(photo_folder_path)
     except:
         pass
-    print('dupa')
+    print("dupa")
 
     path_to_photos = os.listdir("../../" + photo_folder_path + "/" + os.listdir()[0])
 
@@ -59,10 +64,11 @@ def get_photo_from_id(id: list):
 
     print("dupa")
 
-    cut_plot(image_path, XML_path, '../../cuted_photo.jpg', x_min, y_min, x_max, y_max)
+    cut_plot(image_path, XML_path, "../../cuted_photo.jpg", x_min, y_min, x_max, y_max)
 
     shutil.rmtree("../../download")
 
     return
+
 
 # from_id_photo("120906_2.0003.2761/2")

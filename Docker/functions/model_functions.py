@@ -11,4 +11,3 @@ def predict_with_loaded_model(photo_path, model_path="trained_NN"):
     images = np.vstack([x])
     classes = model.predict(images, batch_size=10)
     return classes[0][0]
-
