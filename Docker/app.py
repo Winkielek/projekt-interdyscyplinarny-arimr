@@ -3,9 +3,11 @@ import datetime
 import dash
 from dash.dependencies import Input, Output, State
 import dash_core_components as dcc
+import dash_bootstrap_components as dbc
 import dash_html_components as html
 from functions.model_functions import predict_with_loaded_model
 from functions.from_id_pipeline_no_imports import get_photo_from_id
+from functions.Capturing import Capturing
 import os
 import base64
 from flask import Flask
@@ -17,7 +19,7 @@ UPLOAD_DIRECTORY = "/save_images"
 if not os.path.exists(UPLOAD_DIRECTORY):
     os.makedirs(UPLOAD_DIRECTORY)
 
-external_stylesheets = ["https://codepen.io/chriddyp/pen/bWLwgP.css"]
+external_stylesheets = [dbc.themes.BOOTSTRAP, "https://codepen.io/chriddyp/pen/bWLwgP.css"]
 
 server = Flask(__name__)
 app = dash.Dash(__name__, server=server, external_stylesheets=external_stylesheets)
@@ -95,6 +97,29 @@ app.layout = html.Div(
                 html.Div(id="ocena_id", className="ocena"),
             ],
         ),
+        html.Div(id="alerts", children=[
+            dbc.Alert(
+                "Najpierw wgraj zdjęcie do oceny",
+                color="primary",
+                id="no-photo-uploaded",
+                dismissable=True,
+                is_open=False,
+            ),
+            dbc.Alert(
+                "Najpierw podaj numer działki do oceny",
+                color="primary",
+                id="no-lot-assigned",
+                dismissable=True,
+                is_open=False,
+            ),
+            dbc.Alert(
+                "Taka działka nie istnieje",
+                color="danger",
+                id="invalid-input",
+                dismissable=True,
+                is_open=False,
+            ),
+        ]),
     ],
 )
 
@@ -120,10 +145,18 @@ def update_output(photo_content):
         return None, None
 
 
-@app.callback(Output("ocena_photo", "children"), Input("button_photo", "n_clicks"))
+@app.callback(
+    Output("ocena_photo", "children"),
+    Output("no-photo-uploaded", "is_open"),
+    Input("button_photo", "n_clicks"),
+)
 def update_output_based_on_photo(button_clicks):
     if button_clicks is not None:
         files = uploaded_files()
+        # alert
+        if not files:
+            return None, True
+        
         is_rzepak = predict_with_loaded_model(
             photo_path=os.path.join(UPLOAD_DIRECTORY, files[0]), model_path="trained_NN"
         )
@@ -132,24 +165,33 @@ def update_output_based_on_photo(button_clicks):
         else:
             is_rzepak = False
         if is_rzepak:
-            return [true, html.P(className="ocena_text", children="To jest rzepak!")]
+            return [true, html.P(className="ocena_text", children="To jest rzepak!")],
+            False
         else:
             return [
                 false,
                 html.P(className="ocena_text", children="To nie jest rzepak!"),
-            ]
+            ], False
     else:
-        return [None, None]
+        return [None, None], False
 
 
 @app.callback(
     Output("ocena_id", "children"),
+    Output("no-lot-assigned", "is_open"),
+    Output("invalid-input", "is_open"),
     Input("button_number", "n_clicks"),
     Input("numer_dzialki", "value"),
 )
 def update_output_based_on_id(button_clicks, numer_dzialki):
-    if button_clicks != None:
-        get_photo_from_id(numer_dzialki)
+    if button_clicks is not None:
+        # alert
+        if not numer_dzialki:
+            return None, True, False
+        try: 
+            get_photo_from_id(numer_dzialki)
+        except:
+            return None, False, True
         is_rzepak = predict_with_loaded_model(
             photo_path="./cuted_photo.jpg", model_path="trained_NN"
         )
@@ -163,13 +205,14 @@ def update_output_based_on_id(button_clicks, numer_dzialki):
                 html.P(
                     className="ocena_text", children="Na działce znajduje się rzepak!"
                 ),
-            ]
+            ], False, False
         else:
             return [
                 false,
                 html.P(className="ocena_text", children="Na działce nie ma rzepaku!"),
-            ]
+            ], False, False
 
 
 if __name__ == "__main__":
     app.run_server(host="0.0.0.0", port=5000, debug=True)
+
