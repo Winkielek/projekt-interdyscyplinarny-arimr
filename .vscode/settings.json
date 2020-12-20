@@ -1,5 +1,19 @@
 {
+    "python.pythonPath": "/usr/local/bin/python",
     "python.linting.pylintEnabled": false,
     "python.linting.flake8Enabled": true,
-    "python.linting.enabled": true
-}
+    "python.linting.enabled": true,
+    "editor.formatOnSave": true,
+    "python.sortImports.args": [
+        "-rc",
+        "-sp isort.cfg"
+    ],
+    "python.formatting.provider": "black",
+    "python.formatting.blackArgs": [
+        "--line-length=99"
+    ],
+    "[python]": {
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": true
+        }
+    }
