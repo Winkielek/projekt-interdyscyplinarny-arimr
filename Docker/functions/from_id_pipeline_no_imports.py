@@ -295,6 +295,8 @@ def get_photo_from_id(id: str) -> None:
                 XML_path = path_to_photos + file_inside
 
     cut_plot(image_path, XML_path, "cuted_photo.jpg", x_min, y_min, x_max, y_max)
+    #kopia dla GUI
+    shutil.copyfile("./cuted_photo.jpg", "./imgs/cuted_photo.jpg")
 
     if pic_from_cache_flag == False:
         rmtree("./download/")
