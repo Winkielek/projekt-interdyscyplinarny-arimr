@@ -188,7 +188,7 @@ def update_output_based_on_photo(button_clicks):
 @app.callback(
     Output("ocena_id", "children"),
     Input("button_number", "n_clicks"),
-    Input("numer_dzialki", "value"),
+    State("numer_dzialki", "value"),
 )
 def update_output_based_on_id(button_clicks, numer_dzialki):
     if button_clicks is not None:
