@@ -1,0 +1,4 @@
+*.pyc
+download/
+functions/__pycache__
+functions/CREODIAS_client/__pycache__

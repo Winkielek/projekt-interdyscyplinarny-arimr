@@ -1,16 +1,16 @@
+import base64
 import datetime
+import os
 
 import dash
-from dash.dependencies import Input, Output, State
 import dash_core_components as dcc
 import dash_html_components as html
-from functions.model_functions import predict_with_loaded_model
-from functions.from_id_pipeline_no_imports import get_photo_from_id
-import os
-import base64
+from dash.dependencies import Input, Output, State
 from flask import Flask
 from tensorflow.keras.preprocessing import image
 
+from functions.from_id_pipeline_no_imports import converter, cord_reader, get_photo_from_id
+from functions.model_functions import predict_with_loaded_model
 
 UPLOAD_DIRECTORY = "/save_images"
 
@@ -71,9 +71,10 @@ app.layout = html.Div(
                 ),
                 html.Div(id="output-image-text"),
                 html.Div(id="output-image-upload"),
+                html.Br(),
                 html.Button("Oceń", id="button_photo"),
                 dcc.Loading(
-                    id="loading-2",
+                    id="loading-1",
                     children=[html.Div(id="ocena_photo", className="ocena")],
                     type="circle",
                 ),
@@ -91,8 +92,26 @@ app.layout = html.Div(
                 ),
                 html.Br(),
                 html.Br(),
+                html.Div(
+                    id="wrapper_iframe_photo",
+                    children=[
+                        html.Iframe(
+                            id="iframe_map",
+                            style={
+                                "width": "300px",
+                                "height": "300px",
+                            },
+                            hidden=True,
+                        ),
+                    ],
+                ),
+                html.Br(),
                 html.Button("Oceń", id="button_number"),
-                html.Div(id="ocena_id", className="ocena"),
+                dcc.Loading(
+                    id="loading-2",
+                    children=[html.Div(id="ocena_id", className="ocena")],
+                    type="circle",
+                ),
             ],
         ),
     ],
@@ -100,9 +119,7 @@ app.layout = html.Div(
 
 
 def add_image_from_photo_content(first_photo_content):
-    return html.Div(
-        [html.Img(src=first_photo_content, style={"height": "auto", "width": "auto"})]
-    )
+    return html.Div([html.Img(src=first_photo_content, style={"height": "auto", "width": "auto"})])
 
 
 @app.callback(
@@ -118,6 +135,32 @@ def update_output(photo_content):
         return html_image, html.H3("Wgrane zdjęcie:")
     else:
         return None, None
+
+
+@app.callback(
+    Output("iframe_map", "src"),
+    Output("iframe_map", "hidden"),
+    Input("button_number", "n_clicks"),
+    State("numer_dzialki", "value"),
+)
+def update_iframe(button_clicks, id_dzialki):
+    if button_clicks is not None:
+
+        dict_coordinates = cord_reader([id_dzialki])
+        str_coordinates = dict_coordinates[id_dzialki][0]
+        splitted_str_coordinates = str_coordinates.split(" ")
+
+        x_puwg_coord = splitted_str_coordinates[1]
+        y_puwg_coord = splitted_str_coordinates[0]
+
+        x, y = converter(x_puwg_coord, y_puwg_coord)
+        x = str(float(x))
+        y = str(float(y))
+
+        src = "https://maps.google.com/maps?q= " + y + ", " + x + "&z=15&output=embed"
+        return src, False
+    else:
+        return None, True
 
 
 @app.callback(Output("ocena_photo", "children"), Input("button_photo", "n_clicks"))
@@ -148,7 +191,7 @@ def update_output_based_on_photo(button_clicks):
     Input("numer_dzialki", "value"),
 )
 def update_output_based_on_id(button_clicks, numer_dzialki):
-    if button_clicks != None:
+    if button_clicks is not None:
         get_photo_from_id(numer_dzialki)
         is_rzepak = predict_with_loaded_model(
             photo_path="./cuted_photo.jpg", model_path="trained_NN"
@@ -160,15 +203,15 @@ def update_output_based_on_id(button_clicks, numer_dzialki):
         if is_rzepak:
             return [
                 true,
-                html.P(
-                    className="ocena_text", children="Na działce znajduje się rzepak!"
-                ),
+                html.P(className="ocena_text", children="Na działce znajduje się rzepak!"),
             ]
         else:
             return [
                 false,
                 html.P(className="ocena_text", children="Na działce nie ma rzepaku!"),
             ]
+    else:
+        return None
 
 
 if __name__ == "__main__":
