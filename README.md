@@ -47,4 +47,4 @@ Do apki został dodany pseudo cache, ale jest za duży na wrzucenie na gita, je�
 
 - [cache_data](https://drive.google.com/drive/folders/1NGIl9nzcuq5v7NMqpAONEwTcmPLIckpY?usp=sharing)
 
-umieszczamy go w folderze Docker (bez tego cache też powinno działać).
+umieszczamy go w folderze Docker (jak ktoś nie zrobi sobie też powinno działać).
