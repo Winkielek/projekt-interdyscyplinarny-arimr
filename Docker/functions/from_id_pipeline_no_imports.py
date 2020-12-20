@@ -2,11 +2,13 @@ import glob
 import os
 import shutil
 import stat
+import warnings
 import xml.etree.ElementTree as ET
+
 import gdal
 import pyproj
 import requests
-import warnings
+from shapely import wkb
 
 warnings.filterwarnings("ignore", category=FutureWarning)
 
@@ -42,11 +44,7 @@ def cord_reader(plot_ids_list: list) -> dict:
     for i in plot_ids_list:
         # ganerated with https://curl.trillworks.com/
 
-        response1 = requests.get(
-            "https://uldk.gugik.gov.pl/?request=GetParcelById&id=" + i
-        )  # WKB
-
-        from shapely import wkb
+        response1 = requests.get("https://uldk.gugik.gov.pl/?request=GetParcelById&id=" + i)  # WKB
 
         hexlocation = response1.text[2 : len(response1.text) - 1]
         point = wkb.loads(hexlocation, hex=True)
@@ -171,14 +169,12 @@ def filelOrg(MAIN_FOLDER_PATH: str) -> None:
         new_folder_path = MAIN_FOLDER_PATH + "/" + folder + "_extracted"
         os.mkdir(new_folder_path)
 
-        meta_path = glob.glob(
-            MAIN_FOLDER_PATH + "/" + folder + META_DATA_PATTERN, recursive=True
-        )[0]
+        meta_path = glob.glob(MAIN_FOLDER_PATH + "/" + folder + META_DATA_PATTERN, recursive=True)[
+            0
+        ]
         shutil.move(meta_path, new_folder_path)
 
-        img_path = glob.glob(
-            MAIN_FOLDER_PATH + "/" + folder + IMG_DATA_PATTERN, recursive=True
-        )[0]
+        img_path = glob.glob(MAIN_FOLDER_PATH + "/" + folder + IMG_DATA_PATTERN, recursive=True)[0]
         shutil.move(img_path, new_folder_path)
 
         rmtree(MAIN_FOLDER_PATH + "/" + folder)

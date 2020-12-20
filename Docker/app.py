@@ -1,20 +1,16 @@
+import base64
 import datetime
+import os
 
 import dash
-from dash.dependencies import Input, Output, State
 import dash_core_components as dcc
 import dash_html_components as html
-from functions.model_functions import predict_with_loaded_model
-from functions.from_id_pipeline_no_imports import (
-    get_photo_from_id,
-    cord_reader,
-    converter,
-)
-import os
-import base64
+from dash.dependencies import Input, Output, State
 from flask import Flask
 from tensorflow.keras.preprocessing import image
 
+from functions.from_id_pipeline_no_imports import converter, cord_reader, get_photo_from_id
+from functions.model_functions import predict_with_loaded_model
 
 UPLOAD_DIRECTORY = "/save_images"
 
@@ -78,7 +74,7 @@ app.layout = html.Div(
                 html.Br(),
                 html.Button("Oceń", id="button_photo"),
                 dcc.Loading(
-                    id="loading-2",
+                    id="loading-1",
                     children=[html.Div(id="ocena_photo", className="ocena")],
                     type="circle",
                 ),
@@ -107,12 +103,15 @@ app.layout = html.Div(
                             },
                             hidden=True,
                         ),
-                        html.Div(id="cutted-photo"),
                     ],
                 ),
                 html.Br(),
                 html.Button("Oceń", id="button_number"),
-                html.Div(id="ocena_id", className="ocena"),
+                dcc.Loading(
+                    id="loading-2",
+                    children=[html.Div(id="ocena_id", className="ocena")],
+                    type="circle",
+                ),
             ],
         ),
     ],
@@ -120,9 +119,7 @@ app.layout = html.Div(
 
 
 def add_image_from_photo_content(first_photo_content):
-    return html.Div(
-        [html.Img(src=first_photo_content, style={"height": "auto", "width": "auto"})]
-    )
+    return html.Div([html.Img(src=first_photo_content, style={"height": "auto", "width": "auto"})])
 
 
 @app.callback(
@@ -147,7 +144,7 @@ def update_output(photo_content):
     State("numer_dzialki", "value"),
 )
 def update_iframe(button_clicks, id_dzialki):
-    if button_clicks != None:
+    if button_clicks is not None:
 
         dict_coordinates = cord_reader([id_dzialki])
         str_coordinates = dict_coordinates[id_dzialki][0]
@@ -190,12 +187,11 @@ def update_output_based_on_photo(button_clicks):
 
 @app.callback(
     Output("ocena_id", "children"),
-    Output("cutted-photo", "children"),
     Input("button_number", "n_clicks"),
     Input("numer_dzialki", "value"),
 )
 def update_output_based_on_id(button_clicks, numer_dzialki):
-    if button_clicks != None:
+    if button_clicks is not None:
         get_photo_from_id(numer_dzialki)
         is_rzepak = predict_with_loaded_model(
             photo_path="./cuted_photo.jpg", model_path="trained_NN"
@@ -207,17 +203,15 @@ def update_output_based_on_id(button_clicks, numer_dzialki):
         if is_rzepak:
             return [
                 true,
-                html.P(
-                    className="ocena_text", children="Na działce znajduje się rzepak!"
-                ),
-            ], html.Img(src="./cuted_photo.jpg")
+                html.P(className="ocena_text", children="Na działce znajduje się rzepak!"),
+            ]
         else:
             return [
                 false,
                 html.P(className="ocena_text", children="Na działce nie ma rzepaku!"),
-            ], html.Img(src="./cuted_photo.jpg")
+            ]
     else:
-        return None, None
+        return None
 
 
 if __name__ == "__main__":
