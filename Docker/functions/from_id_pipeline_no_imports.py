@@ -83,6 +83,7 @@ def cut_plot(
     photo_path: str,
     XML_path: str,
     output_path: str,
+    cache_flag: bool,
     xmin: float,
     ymin: float,
     xmax: float,
@@ -94,6 +95,7 @@ def cut_plot(
         photo_path (str): sciezka do katalogu surowa_paczka.SAFE
         XML_path (str): [description]
         output_path (str): sciezka pliku wycietego zdjecia np.: zdjecie.png
+        cache_flag (bool): flaga informujaca czy wycianmy cachowany tiff
         xmin (float): wspolrzedne prostokata do wyciecia
         ymin (float): wspolrzedne prostokata do wyciecia
         xmax (float): wspolrzedne prostokata do wyciecia
@@ -104,15 +106,6 @@ def cut_plot(
     root = ET.parse(XML_path).getroot()
     epsg_info = list(list(root)[1])[0].find("HORIZONTAL_CS_CODE").text[5:]
 
-    # photos_paths = os.listdir(photo_dir_path + "/GRANULE/" + target_dir + "/IMG_DATA/R10m")
-    # for f in photos_paths:
-    # if(f.find("TCI") != -1):
-    #   photo_path = photo_dir_path + "/GRANULE/" + target_dir + "/IMG_DATA/R10m/" + f
-    #  break
-
-    # JP2 to TIFF
-    gdal.Translate("temp_tiff.tiff", photo_path)
-
     # Wycinanie opcje
     opt = gdal.WarpOptions(
         srcSRS="epsg:" + epsg_info,
@@ -121,14 +114,21 @@ def cut_plot(
         format="Gtiff",
     )
 
-    # Wycinanie
-    res = gdal.Warp("usunac.tiff", "temp_tiff.tiff", options=opt)
+    if cache_flag and os.path.exists("./cache_data/cache_tiff.tiff"):
+        # Wycinanie
+        res = gdal.Warp("usunac.tiff", "./cache_data/cache_tiff.tiff", options=opt)
+    else:
+        # JP2 to TIFF
+        gdal.Translate("temp_tiff.tiff", photo_path)
+        # Wycinanie
+        res = gdal.Warp("usunac.tiff", "temp_tiff.tiff", options=opt)
+        # Usuwanie temp_tiff
+        os.remove("temp_tiff.tiff")
 
     # Wyciete do png
     gdal.Translate(output_path, res)
 
-    # Usuwanie temp_tiff
-    os.remove("temp_tiff.tiff")
+    # Usuwanie pozostałości
     os.remove("usunac.tiff")
     os.remove(output_path + ".aux.xml")
 
@@ -316,9 +316,11 @@ def get_photo_from_id(id: str) -> None:
             if "MTD" in file_inside:
                 XML_path = path_to_photos + file_inside
 
-    cut_plot(image_path, XML_path, "cuted_photo.jpg", x_min, y_min, x_max, y_max)
+    cut_plot(
+        image_path, XML_path, "cuted_photo.jpg", pic_from_cache_flag, x_min, y_min, x_max, y_max
+    )
 
-    if pic_from_cache_flag == False:
+    if pic_from_cache_flag is False:
         rmtree("./download/")
 
     return
