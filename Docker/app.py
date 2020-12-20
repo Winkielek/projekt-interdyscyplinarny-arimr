@@ -5,13 +5,11 @@ import os
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
-import flask
 from dash.dependencies import Input, Output, State
-from flask import Flask, url_for
+from flask import Flask
 from tensorflow.keras.preprocessing import image
 
-from functions.from_id_pipeline_no_imports import (converter, cord_reader,
-                                                   get_photo_from_id)
+from functions.from_id_pipeline_no_imports import converter, cord_reader, get_photo_from_id
 from functions.model_functions import predict_with_loaded_model
 
 UPLOAD_DIRECTORY = "/save_images"
@@ -36,12 +34,6 @@ def save_file(name, content):
     with open(os.path.join(UPLOAD_DIRECTORY, name), "wb") as fp:
         fp.write(base64.decodebytes(data))
 
-@server.route("/imgs/<path:path>")
-def images(path):
-    fullpath = "./imgs/" + path
-    resp = flask.make_response(open(fullpath).read())
-    resp.content_type = "image/jpg"
-    return resp
 
 def uploaded_files():
     """List the files in the upload directory."""
@@ -111,7 +103,6 @@ app.layout = html.Div(
                             },
                             hidden=True,
                         ),
-                        html.Img(id = "cuted_image")
                     ],
                 ),
                 html.Br(),
@@ -193,25 +184,15 @@ def update_output_based_on_photo(button_clicks):
     else:
         return [None, None]
 
-def save_file_from_bytes(name, photo_in_bytes):
-    """Decode and store an image from byes."""
-    data = photo_in_bytes.split(b";base64,")
-    with open(os.path.join(UPLOAD_DIRECTORY, name), "wb") as fp:
-        fp.write(base64.decodebytes(data[0]))
 
 @app.callback(
     Output("ocena_id", "children"),
-    Output("cuted_image", "src"),
     Input("button_number", "n_clicks"),
     Input("numer_dzialki", "value"),
 )
 def update_output_based_on_id(button_clicks, numer_dzialki):
     if button_clicks is not None:
         get_photo_from_id(numer_dzialki)
-        encoded_image = base64.b64encode(open("./cuted_photo.jpg", 'rb').read())
-        print(open("./cuted_photo.jpg", 'rb').read())
-        save_file_from_bytes("cuted_photo_gui.jpg", open("./cuted_photo.jpg", 'rb').read())
-        print(uploaded_files())
         is_rzepak = predict_with_loaded_model(
             photo_path="./cuted_photo.jpg", model_path="trained_NN"
         )
@@ -223,14 +204,14 @@ def update_output_based_on_id(button_clicks, numer_dzialki):
             return [
                 true,
                 html.P(className="ocena_text", children="Na działce znajduje się rzepak!"),
-            ], html.Img(src='data:image/jpg;base64,{}'.format(encoded_image))
+            ]
         else:
             return [
                 false,
                 html.P(className="ocena_text", children="Na działce nie ma rzepaku!"),
-            ], html.Img(src='data:image/jpg;base64,{}'.format(encoded_image))
+            ]
     else:
-        return None, None
+        return None
 
 
 if __name__ == "__main__":

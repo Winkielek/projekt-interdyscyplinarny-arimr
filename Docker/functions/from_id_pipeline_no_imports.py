@@ -1,4 +1,5 @@
 import glob
+import json as json
 import os
 import shutil
 import stat
@@ -8,6 +9,7 @@ import xml.etree.ElementTree as ET
 import gdal
 import pyproj
 import requests
+import wget
 from shapely import wkb
 
 warnings.filterwarnings("ignore", category=FutureWarning)
@@ -17,14 +19,14 @@ def cord_reader(plot_ids_list: list) -> dict:
     """[summary]
 
     Args:
-        plot_ids_list (list): [description]
+        plot_ids_list (list): List containing plot id as Strings
 
     Raises:
-        Exception: [description]
-        Exception: [description]
+        Exception: List object is required. When not list object passa as argument
+        Exception: List didn't contains only strings. Other object type then String exsist in list
 
     Returns:
-        dict: [description]
+        dict: Dirctoinary {Plot_id:['lat lon',...]}
     """
     # Taking list contaings plots ID as strings
     # example ["260101_5.0037.569"]
@@ -37,7 +39,7 @@ def cord_reader(plot_ids_list: list) -> dict:
     if not isinstance(plot_ids_list, list):
         raise Exception("List object is required")
     if not isinstance(plot_ids_list[0], str):
-        raise Exception("List didnt contains only strings")
+        raise Exception("List didn't contains only strings")
 
     list_of_cords = []
 
@@ -64,11 +66,11 @@ def converter(x_in: float, y_in: float) -> tuple:
     """[summary]
 
     Args:
-        x_in (float): [description]
-        y_in (float): [description]
+        x_in (float): X in PUGW 1992
+        y_in (float): Y in PUGw 1992
 
     Returns:
-        tuple: [description]
+        tuple: Return (x,y) in normal epsg:4326 cords
     """
     input_proj = pyproj.Proj(init="epsg:2180")
     output_proj = pyproj.Proj(init="epsg:4326")
@@ -222,7 +224,7 @@ def get_photo_from_id(id: str) -> None:
     """[summary]
 
     Args:
-        id (str): [description]
+        id (str): String - Plot id
     """
     id = str(id)
     cord_PUGW = cord_reader([id])[id]
@@ -264,16 +266,36 @@ def get_photo_from_id(id: str) -> None:
     else:
         # flaga usuwanie danych
         pic_from_cache_flag = False
+        worked = False
+        try:
+            w = checkForClouds("2020-05-01", "2020-05-30", y_to_download, x_to_download)[0]
+            download_data(
+                str(y_to_download),
+                str(x_to_download),
+                date_from="2020-05-01",
+                date_to="2020-05-31",
+                cloud_value=int(w) + 1,
+                folder_name="FOTO",
+                records_per_image="1",
+            )
+            worked = True
+        except:
+            pass
+        if not worked:
+            try:
 
-        download_data(
-            str(y_to_download),
-            str(x_to_download),
-            date_from="2020-05-01",
-            date_to="2020-05-31",
-            cloud_value=50,
-            folder_name="FOTO",
-            records_per_image="1",
-        )
+                download_data(
+                    str(y_to_download),
+                    str(x_to_download),
+                    date_from="2020-05-01",
+                    date_to="2020-05-31",
+                    cloud_value=50,
+                    folder_name="FOTO",
+                    records_per_image="1",
+                )
+
+            except:
+                pass
 
         # sciezka do poprawy
         photo_folder_path = "./download/" + os.listdir("./download")[0]
@@ -295,8 +317,6 @@ def get_photo_from_id(id: str) -> None:
                 XML_path = path_to_photos + file_inside
 
     cut_plot(image_path, XML_path, "cuted_photo.jpg", x_min, y_min, x_max, y_max)
-    #kopia dla GUI
-    shutil.copyfile("./cuted_photo.jpg", "./imgs/cuted_photo.jpg")
 
     if pic_from_cache_flag == False:
         rmtree("./download/")
@@ -357,7 +377,9 @@ def checkForClouds(startDate: str, completionDate: str, lat: float, lon: float) 
         else:
             lim = numberOfResults % 20
         for j in range(lim):
+
             res[(i - 1) * 20 + j] = data["features"][j]["properties"]["cloudCover"]
         os.remove("search.json")
     res.sort()
+
     return res
