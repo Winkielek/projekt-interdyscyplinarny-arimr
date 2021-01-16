@@ -3,15 +3,16 @@ import datetime
 import os
 
 import dash
-import dash_core_components as dcc
 import dash_bootstrap_components as dbc
+import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output, State
-from functions.Capturing import Capturing
 from flask import Flask
 from tensorflow.keras.preprocessing import image
 
-from functions.from_id_pipeline_no_imports import converter, cord_reader, get_photo_from_id
+from functions.Capturing import Capturing
+from functions.from_id_pipeline_no_imports import (converter, cord_reader,
+                                                   get_photo_from_id)
 from functions.model_functions import predict_with_loaded_model
 
 UPLOAD_DIRECTORY = "/save_images"
@@ -28,6 +29,8 @@ app.scripts.config.serve_locally = True
 
 true = html.Span(id="true", className="icon", children="✔️")
 false = html.Span(id="false", className="icon", children="❌")
+
+new_photo_uploaded_flag = False
 
 
 def save_file(name, content):
@@ -138,6 +141,13 @@ app.layout = html.Div(
                 dismissable=True,
                 is_open=False,
             ),
+            dbc.Alert(
+                "Ładowanie nie powiodło się z winy serwera, spróbuj później",
+                color="danger",
+                id="server-timeout",
+                dismissable=True,
+                is_open=False,
+            ),
         ]),
     ],
 )
@@ -157,6 +167,11 @@ def update_output(photo_content):
         first_photo_content = photo_content[0]
         html_image = [add_image_from_photo_content(first_photo_content)]
         save_file("example_photo.png", first_photo_content)
+
+        #alert
+        global new_photo_uploaded_flag
+        new_photo_uploaded_flag = True
+
         return html_image, html.H3("Wgrane zdjęcie:")
     else:
         return None, None
@@ -170,20 +185,22 @@ def update_output(photo_content):
 )
 def update_iframe(button_clicks, id_dzialki):
     if button_clicks is not None:
+        try:
+            dict_coordinates = cord_reader([id_dzialki])
+            str_coordinates = dict_coordinates[id_dzialki][0]
+            splitted_str_coordinates = str_coordinates.split(" ")
 
-        dict_coordinates = cord_reader([id_dzialki])
-        str_coordinates = dict_coordinates[id_dzialki][0]
-        splitted_str_coordinates = str_coordinates.split(" ")
+            x_puwg_coord = splitted_str_coordinates[1]
+            y_puwg_coord = splitted_str_coordinates[0]
 
-        x_puwg_coord = splitted_str_coordinates[1]
-        y_puwg_coord = splitted_str_coordinates[0]
+            x, y = converter(x_puwg_coord, y_puwg_coord)
+            x = str(float(x))
+            y = str(float(y))
 
-        x, y = converter(x_puwg_coord, y_puwg_coord)
-        x = str(float(x))
-        y = str(float(y))
-
-        src = "https://maps.google.com/maps?q= " + y + ", " + x + "&z=15&output=embed"
-        return src, False
+            src = "https://maps.google.com/maps?q= " + y + ", " + x + "&z=15&output=embed"
+            return src, False
+        except:
+            pass
     else:
         return None, True
 
@@ -195,9 +212,11 @@ def update_iframe(button_clicks, id_dzialki):
 def update_output_based_on_photo(button_clicks):
     if button_clicks is not None:
         files = uploaded_files()
+
         # alert
-        if not files:
-            return None, True
+        global new_photo_uploaded_flag
+        if not new_photo_uploaded_flag:
+            return [None, None], True
         
         is_rzepak = predict_with_loaded_model(
             photo_path=os.path.join(UPLOAD_DIRECTORY, files[0]), model_path="trained_NN"
@@ -222,6 +241,7 @@ def update_output_based_on_photo(button_clicks):
     Output("ocena_id", "children"),
     Output("no-lot-assigned", "is_open"),
     Output("invalid-input", "is_open"),
+    Output("server-timeout", "is_open"),
     Input("button_number", "n_clicks"),
     Input("numer_dzialki", "value"),
 )
@@ -229,11 +249,14 @@ def update_output_based_on_id(button_clicks, numer_dzialki):
     if button_clicks is not None:
         # alert
         if not numer_dzialki:
-            return None, True, False
+            return None, True, False, False
         try: 
             get_photo_from_id(numer_dzialki)
-        except:
-            return None, False, True
+        except Exception as e:
+            if (str(e) == "dupa"):
+                return None, False, True, False
+            else:
+                return None, False, False, True
         is_rzepak = predict_with_loaded_model(
             photo_path="./cuted_photo.jpg", model_path="trained_NN"
         )
@@ -247,14 +270,14 @@ def update_output_based_on_id(button_clicks, numer_dzialki):
                 html.P(
                     className="ocena_text", children="Na działce znajduje się rzepak!"
                 ),
-            ], False, False
+            ], False, False, False
         else:
             return [
                 false,
                 html.P(className="ocena_text", children="Na działce nie ma rzepaku!"),
-            ], False, False
+            ], False, False, False
     else:
-        return None, False, False
+        return None, False, False, False
 
 
 if __name__ == "__main__":

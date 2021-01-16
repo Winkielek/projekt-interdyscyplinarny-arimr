@@ -45,18 +45,20 @@ def cord_reader(plot_ids_list: list) -> dict:
 
     for i in plot_ids_list:
         # ganerated with https://curl.trillworks.com/
+        try: 
+            response1 = requests.get("https://uldk.gugik.gov.pl/?request=GetParcelById&id=" + i)  # WKB
 
-        response1 = requests.get("https://uldk.gugik.gov.pl/?request=GetParcelById&id=" + i)  # WKB
-
-        hexlocation = response1.text[2 : len(response1.text) - 1]
-        point = wkb.loads(hexlocation, hex=True)
-        x_y = point.exterior.coords.xy
+            hexlocation = response1.text[2 : len(response1.text) - 1]
+            point = wkb.loads(hexlocation, hex=True)
+            x_y = point.exterior.coords.xy
+        except:
+            raise Exception("dupa")
 
         cords = []
         for i in range(len(x_y[0])):
             cords.append(str(x_y[0][i]) + " " + str(x_y[1][i]))
         list_of_cords.append(cords)
-
+    
     res = dict(zip(plot_ids_list, list_of_cords))
 
     return res
