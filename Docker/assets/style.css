@@ -23,3 +23,9 @@ h1{
     display: inline-block;
     font-size: 50px;
 }
+
+#alerts{
+    position: fixed;
+    top: 0;
+    width: 100%;
+}

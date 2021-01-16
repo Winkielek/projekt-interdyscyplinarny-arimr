@@ -7,3 +7,4 @@ shapely
 paramiko
 scp
 wget
+dash_bootstrap_components

@@ -3,3 +3,4 @@ download/
 functions/__pycache__
 functions/CREODIAS_client/__pycache__
 cache_data/
+.vscode/settings.json

@@ -45,18 +45,20 @@ def cord_reader(plot_ids_list: list) -> dict:
 
     for i in plot_ids_list:
         # ganerated with https://curl.trillworks.com/
+        try: 
+            response1 = requests.get("https://uldk.gugik.gov.pl/?request=GetParcelById&id=" + i)  # WKB
 
-        response1 = requests.get("https://uldk.gugik.gov.pl/?request=GetParcelById&id=" + i)  # WKB
-
-        hexlocation = response1.text[2 : len(response1.text) - 1]
-        point = wkb.loads(hexlocation, hex=True)
-        x_y = point.exterior.coords.xy
+            hexlocation = response1.text[2 : len(response1.text) - 1]
+            point = wkb.loads(hexlocation, hex=True)
+            x_y = point.exterior.coords.xy
+        except:
+            raise Exception("dupa")
 
         cords = []
         for i in range(len(x_y[0])):
             cords.append(str(x_y[0][i]) + " " + str(x_y[1][i]))
         list_of_cords.append(cords)
-
+    
     res = dict(zip(plot_ids_list, list_of_cords))
 
     return res
@@ -263,58 +265,59 @@ def get_photo_from_id(id: str) -> None:
             # flaga bo później niepotrzebne usuwanie danych
             pic_from_cache_flag = True
 
-    else:
-        # flaga usuwanie danych
-        pic_from_cache_flag = False
+        else:
+            # flaga usuwanie danych
+            pic_from_cache_flag = False
+    
+    worked = False
+    try:
+        w = checkForClouds("2020-05-01", "2020-05-30", y_to_download, x_to_download)[0]
+        download_data(
+            str(y_to_download),
+            str(x_to_download),
+            date_from="2020-05-01",
+            date_to="2020-05-31",
+            cloud_value=int(w) + 1,
+            folder_name="FOTO",
+            records_per_image="1",
+        )
+        worked = True
+    except:
         worked = False
+        pass
+    if not worked:
         try:
-            w = checkForClouds("2020-05-01", "2020-05-30", y_to_download, x_to_download)[0]
             download_data(
                 str(y_to_download),
                 str(x_to_download),
                 date_from="2020-05-01",
                 date_to="2020-05-31",
-                cloud_value=int(w) + 1,
+                cloud_value=50,
                 folder_name="FOTO",
                 records_per_image="1",
             )
-            worked = True
-        except:
-            pass
-        if not worked:
-            try:
 
-                download_data(
-                    str(y_to_download),
-                    str(x_to_download),
-                    date_from="2020-05-01",
-                    date_to="2020-05-31",
-                    cloud_value=50,
-                    folder_name="FOTO",
-                    records_per_image="1",
-                )
-
-            except:
-                pass
-
-        # sciezka do poprawy
-        photo_folder_path = "./download/" + os.listdir("./download")[0]
-
-        try:
-            filelOrg(photo_folder_path)
         except:
             pass
 
-        # sklejanie scieżki
-        path_to_photos = "./download/"
-        for i in range(2):
-            path_to_photos += str(os.listdir(path_to_photos)[0] + "/")
+    # sciezka do poprawy
+    photo_folder_path = "./download/" + os.listdir("./download")[0]
 
-        for file_inside in os.listdir(path_to_photos):
-            if "TCI" in file_inside:
-                image_path = path_to_photos + file_inside
-            if "MTD" in file_inside:
-                XML_path = path_to_photos + file_inside
+    try:
+        filelOrg(photo_folder_path)
+    except:
+        pass
+
+    # sklejanie scieżki
+    path_to_photos = "./download/"
+    for i in range(2):
+        path_to_photos += str(os.listdir(path_to_photos)[0] + "/")
+
+    for file_inside in os.listdir(path_to_photos):
+        if "TCI" in file_inside:
+            image_path = path_to_photos + file_inside
+        if "MTD" in file_inside:
+            XML_path = path_to_photos + file_inside
 
     cut_plot(
         image_path, XML_path, "cuted_photo.jpg", pic_from_cache_flag, x_min, y_min, x_max, y_max
