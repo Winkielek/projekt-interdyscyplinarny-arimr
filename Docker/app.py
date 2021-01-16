@@ -75,7 +75,13 @@ app.layout = html.Div(
                     multiple=True,
                 ),
                 html.Div(id="output-image-text"),
-                html.Div(id="output-image-upload"),
+                html.Div(
+                    id="output-image-upload",
+                    style={
+                        "width": "50%",
+                        "height": "50%",
+                    },
+                ),
                 html.Br(),
                 html.Button("Oceń", id="button_photo"),
                 dcc.Loading(
@@ -154,7 +160,7 @@ app.layout = html.Div(
 
 
 def add_image_from_photo_content(first_photo_content):
-    return html.Div([html.Img(src=first_photo_content, style={"height": "auto", "width": "auto"})])
+    return html.Div([html.Img(src=first_photo_content, style={"height": "100%", "width": "100%"})])
 
 
 @app.callback(
@@ -200,41 +206,44 @@ def update_iframe(button_clicks, id_dzialki):
             src = "https://maps.google.com/maps?q= " + y + ", " + x + "&z=15&output=embed"
             return src, False
         except:
-            pass
+            return None, False
     else:
         return None, True
 
 @app.callback(
     Output("ocena_photo", "children"),
     Output("no-photo-uploaded", "is_open"),
-    Input("button_photo", "n_clicks"),
+    [Input("button_photo", "n_clicks"), Input("output-image-upload", "children")],
 )
-def update_output_based_on_photo(button_clicks):
-    if button_clicks is not None:
-        files = uploaded_files()
-
-        # alert
-        global new_photo_uploaded_flag
-        if not new_photo_uploaded_flag:
-            return [None, None], True
-        
-        is_rzepak = predict_with_loaded_model(
-            photo_path=os.path.join(UPLOAD_DIRECTORY, files[0]), model_path="trained_NN"
-        )
-        if is_rzepak == 0:
-            is_rzepak = True
-        else:
-            is_rzepak = False
-        if is_rzepak:
-            return [true, html.P(className="ocena_text", children="To jest rzepak!")],
-            False
-        else:
-            return [
-                false,
-                html.P(className="ocena_text", children="To nie jest rzepak!"),
-            ], False
+def update_output_based_on_photo(button_clicks, photo_update):
+    trigger_name = dash.callback_context.triggered[0]["prop_id"].split(".")[0]
+    if trigger_name == "output-image-upload":
+        return [None], False
     else:
-        return [None, None], False
+        if button_clicks is not None:
+            files = uploaded_files()
+
+            # alert
+            global new_photo_uploaded_flag
+            if not new_photo_uploaded_flag:
+                return [None, None], True
+
+            is_rzepak = predict_with_loaded_model(
+                photo_path=os.path.join(UPLOAD_DIRECTORY, files[0]), model_path="trained_NN"
+            )
+            if is_rzepak == 0:
+                is_rzepak = True
+            else:
+                is_rzepak = False
+            if is_rzepak:
+                return [true, html.P(className="ocena_text", children="To jest rzepak!")], False
+            else:
+                return [
+                    false,
+                    html.P(className="ocena_text", children="To nie jest rzepak!"),
+                ], False
+        else:
+            return [None, None], False
 
 
 @app.callback(
@@ -243,7 +252,7 @@ def update_output_based_on_photo(button_clicks):
     Output("invalid-input", "is_open"),
     Output("server-timeout", "is_open"),
     Input("button_number", "n_clicks"),
-    Input("numer_dzialki", "value"),
+    State("numer_dzialki", "value"),
 )
 def update_output_based_on_id(button_clicks, numer_dzialki):
     if button_clicks is not None:
@@ -256,6 +265,7 @@ def update_output_based_on_id(button_clicks, numer_dzialki):
             if (str(e) == "dupa"):
                 return None, False, True, False
             else:
+                print(str(e))
                 return None, False, False, True
         is_rzepak = predict_with_loaded_model(
             photo_path="./cuted_photo.jpg", model_path="trained_NN"
