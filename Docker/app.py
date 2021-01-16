@@ -70,7 +70,13 @@ app.layout = html.Div(
                     multiple=True,
                 ),
                 html.Div(id="output-image-text"),
-                html.Div(id="output-image-upload"),
+                html.Div(
+                    id="output-image-upload",
+                    style={
+                        "width": "50%",
+                        "height": "50%",
+                    },
+                ),
                 html.Br(),
                 html.Button("Oceń", id="button_photo"),
                 dcc.Loading(
@@ -119,7 +125,7 @@ app.layout = html.Div(
 
 
 def add_image_from_photo_content(first_photo_content):
-    return html.Div([html.Img(src=first_photo_content, style={"height": "auto", "width": "auto"})])
+    return html.Div([html.Img(src=first_photo_content, style={"height": "100%", "width": "100%"})])
 
 
 @app.callback(
@@ -163,26 +169,33 @@ def update_iframe(button_clicks, id_dzialki):
         return None, True
 
 
-@app.callback(Output("ocena_photo", "children"), Input("button_photo", "n_clicks"))
-def update_output_based_on_photo(button_clicks):
-    if button_clicks is not None:
-        files = uploaded_files()
-        is_rzepak = predict_with_loaded_model(
-            photo_path=os.path.join(UPLOAD_DIRECTORY, files[0]), model_path="trained_NN"
-        )
-        if is_rzepak == 0:
-            is_rzepak = True
-        else:
-            is_rzepak = False
-        if is_rzepak:
-            return [true, html.P(className="ocena_text", children="To jest rzepak!")]
-        else:
-            return [
-                false,
-                html.P(className="ocena_text", children="To nie jest rzepak!"),
-            ]
+@app.callback(
+    Output("ocena_photo", "children"),
+    [Input("button_photo", "n_clicks"), Input("output-image-upload", "children")],
+)
+def update_output_based_on_photo(button_clicks, photo_update):
+    trigger_name = dash.callback_context.triggered[0]["prop_id"].split(".")[0]
+    if trigger_name == "output-image-upload":
+        return [None]
     else:
-        return [None, None]
+        if button_clicks is not None:
+            files = uploaded_files()
+            is_rzepak = predict_with_loaded_model(
+                photo_path=os.path.join(UPLOAD_DIRECTORY, files[0]), model_path="trained_NN"
+            )
+            if is_rzepak == 0:
+                is_rzepak = True
+            else:
+                is_rzepak = False
+            if is_rzepak:
+                return [true, html.P(className="ocena_text", children="To jest rzepak!")]
+            else:
+                return [
+                    false,
+                    html.P(className="ocena_text", children="To nie jest rzepak!"),
+                ]
+        else:
+            return [None, None]
 
 
 @app.callback(
