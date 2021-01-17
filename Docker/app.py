@@ -309,8 +309,8 @@ def update_output_based_on_id(button_clicks, numer_dzialki):
         test_base64 = base64.b64encode(open(test_png, 'rb').read()).decode('ascii')
         html_image = [ html.Img(src='data:image/png;base64,{}'.format(test_base64),
                                 style={
-                                    "width": "250%",
-                                    "height": "250%"})]
+                                    "width": "750%",
+                                    "height": "750%"})]
         if is_rzepak == 0:
             is_rzepak = True
         else:
