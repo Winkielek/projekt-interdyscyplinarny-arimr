@@ -101,46 +101,39 @@ app.layout = html.Div(
                     type="text",
                     placeholder="Numer działki",
                 ),
-                html.Div(id="div_3",
-                         style={'overflow':"hidden"},
-                         children=[
-                
-                
-                html.Table(
-                    
-                    
-                        
-                    html.Tr(
-                        children=[
-                            html.Td(
-                                html.Iframe(
-                                    id="iframe_map",
-                                    style={
-                                        "width": "300px",
-                                        "height": "300px",
-                                    },
-                                    hidden=True,
-                                ),
+                html.Div(
+                    id="div_3",
+                    style={"overflow": "hidden"},
+                    children=[
+                        html.Table(
+                            html.Tr(
+                                children=[
+                                    html.Td(
+                                        html.Iframe(
+                                            id="iframe_map",
+                                            style={
+                                                "width": "300px",
+                                                "height": "300px",
+                                            },
+                                            hidden=True,
+                                        ),
+                                    ),
+                                    html.Td(
+                                        html.Div(
+                                            id="id_image_upload",
+                                            style={
+                                                "float": "right",
+                                                "height": "100%",
+                                                "width": "100%",
+                                            },
+                                        )
+                                    ),
+                                ]
                             ),
-                            html.Td(
-                                html.Div(
-                                    id="id_image_upload",
-                                    style={
-                                        "float":"right",
-                                        "height": "100%",
-                                        "width": "100%"
-                                    }
-                                )
-                            )
-                        ]
-                    ),
-                    style={
-                        "border": "none"
-                    },
-                )
-
-                ]),
-                
+                            style={"border": "none"},
+                        )
+                    ],
+                ),
                 html.Button("Oceń", id="button_number"),
                 dcc.Loading(
                     id="loading-2",
@@ -149,40 +142,41 @@ app.layout = html.Div(
                 ),
             ],
         ),
-        html.Div(id="alerts", children=[
-            dbc.Alert(
-                "Najpierw wgraj zdjęcie do oceny",
-                color="primary",
-                id="no-photo-uploaded",
-                dismissable=True,
-                is_open=False,
-            ),
-            dbc.Alert(
-                "Najpierw podaj numer działki do oceny",
-                color="primary",
-                id="no-lot-assigned",
-                dismissable=True,
-                is_open=False,
-            ),
-            dbc.Alert(
-                "Taka działka nie istnieje",
-                color="danger",
-                id="invalid-input",
-                dismissable=True,
-                is_open=False,
-            ),
-            dbc.Alert(
-                "Ładowanie nie powiodło się z winy serwera, spróbuj później",
-                color="danger",
-                id="server-timeout",
-                dismissable=True,
-                is_open=False,
-            ),
-        ]),
+        html.Div(
+            id="alerts",
+            children=[
+                dbc.Alert(
+                    "Najpierw wgraj zdjęcie do oceny",
+                    color="primary",
+                    id="no-photo-uploaded",
+                    dismissable=True,
+                    is_open=False,
+                ),
+                dbc.Alert(
+                    "Najpierw podaj numer działki do oceny",
+                    color="primary",
+                    id="no-lot-assigned",
+                    dismissable=True,
+                    is_open=False,
+                ),
+                dbc.Alert(
+                    "Taka działka nie istnieje",
+                    color="danger",
+                    id="invalid-input",
+                    dismissable=True,
+                    is_open=False,
+                ),
+                dbc.Alert(
+                    "Ładowanie nie powiodło się z winy serwera, spróbuj później",
+                    color="danger",
+                    id="server-timeout",
+                    dismissable=True,
+                    is_open=False,
+                ),
+            ],
+        ),
     ],
-    style={
-        "margin": "40px"
-    }
+    style={"margin": "40px"},
 )
 
 
@@ -201,18 +195,13 @@ def update_output(photo_content):
         html_image = [add_image_from_photo_content(first_photo_content)]
         save_file("example_photo.png", first_photo_content)
 
-        #alert
+        # alert
         global new_photo_uploaded_flag
         new_photo_uploaded_flag = True
 
         return html_image, html.H3("Wgrane zdjęcie:")
     else:
         return None, None
-
-
-
-
-
 
 
 @app.callback(
@@ -241,6 +230,7 @@ def update_iframe(button_clicks, id_dzialki):
             return None, False
     else:
         return None, True
+
 
 @app.callback(
     Output("ocena_photo", "children"),
@@ -285,52 +275,65 @@ def update_output_based_on_photo(button_clicks, photo_update):
     Output("server-timeout", "is_open"),
     Output("id_image_upload", "children"),
     Input("button_number", "n_clicks"),
-    State("numer_dzialki", "value"),
+    Input("numer_dzialki", "value"),
 )
-
-
 def update_output_based_on_id(button_clicks, numer_dzialki):
-    if button_clicks is not None:
-        # alert
-        if not numer_dzialki:
-            return None, True, False, False, None
-        try: 
-            get_photo_from_id(numer_dzialki)
-        except Exception as e:
-            if (str(e) == "dupa"):
-                return None, False, True, False, None
-            else:
-                print(str(e))
-                return None, False, False, True, None
-        is_rzepak = predict_with_loaded_model(
-            photo_path="./cuted_photo.jpg", model_path="trained_NN"
-        )
-        test_png = 'cuted_photo.jpg'
-        test_base64 = base64.b64encode(open(test_png, 'rb').read()).decode('ascii')
-        html_image = [ html.Img(src='data:image/png;base64,{}'.format(test_base64),
-                                style={
-                                    "width": "750%",
-                                    "height": "750%"})]
-        if is_rzepak == 0:
-            is_rzepak = True
-        else:
-            is_rzepak = False
-        if is_rzepak:
-            return [
-                true,
-                html.P(
-                    className="ocena_text", children="Na działce znajduje się rzepak!"
-                ),
-            ], False, False, False,html_image
-        else:
-            return [
-                false,
-                html.P(className="ocena_text", children="Na działce nie ma rzepaku!"),
-            ], False, False, False, html_image
-    else:
+    trigger_name = dash.callback_context.triggered[0]["prop_id"].split(".")[0]
+    if trigger_name == "numer_dzialki":
         return None, False, False, False, None
+    else:
+        if button_clicks is not None:
+            # alert
+            if not numer_dzialki:
+                return None, True, False, False, None
+            try:
+                get_photo_from_id(numer_dzialki)
+            except Exception as e:
+                if str(e) == "ten_cenzuralny_exc":
+                    return None, False, True, False, None
+                else:
+                    print(str(e))
+                    return None, False, False, True, None
+            is_rzepak = predict_with_loaded_model(
+                photo_path="./cuted_photo.jpg", model_path="trained_NN"
+            )
+            test_png = "cuted_photo.jpg"
+            test_base64 = base64.b64encode(open(test_png, "rb").read()).decode("ascii")
+            html_image = [
+                html.Img(
+                    src="data:image/png;base64,{}".format(test_base64),
+                    style={"width": "250%", "height": "250%"},
+                )
+            ]
+            if is_rzepak == 0:
+                is_rzepak = True
+            else:
+                is_rzepak = False
+            if is_rzepak:
+                return (
+                    [
+                        true,
+                        html.P(className="ocena_text", children="Na działce znajduje się rzepak!"),
+                    ],
+                    False,
+                    False,
+                    False,
+                    html_image,
+                )
+            else:
+                return (
+                    [
+                        false,
+                        html.P(className="ocena_text", children="Na działce nie ma rzepaku!"),
+                    ],
+                    False,
+                    False,
+                    False,
+                    html_image,
+                )
+        else:
+            return None, False, False, False, None
 
 
 if __name__ == "__main__":
-    app.run_server(host="0.0.0.0", port=5000, debug=True)
-
+    app.run_server(host="0.0.0.0", port=5000, debug=False)
