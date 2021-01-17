@@ -101,21 +101,36 @@ app.layout = html.Div(
                     type="text",
                     placeholder="Numer działki",
                 ),
-                html.Br(),
-                html.Br(),
+                html.Div(id="div_3",
+                         style={'overflow':"hidden"},
+                         children=[
                 html.Div(
                     id="wrapper_iframe_photo",
                     children=[
                         html.Iframe(
                             id="iframe_map",
                             style={
-                                "width": "300px",
-                                "height": "300px",
+                                "width": "200px",
+                                "height": "200px",
                             },
                             hidden=True,
                         ),
                     ],
+                        style={
+                            "float: left"
+                        "height": "45%",
+                        "width": "45%"
+                        },
                 ),
+
+                html.Div(
+                    id="id_image_upload",
+                    style={
+                        "float":"right",
+                        "height": "45%",
+                        "width": "45%"
+                    },
+                )]),
                 html.Br(),
                 html.Button("Oceń", id="button_number"),
                 dcc.Loading(
@@ -181,6 +196,11 @@ def update_output(photo_content):
         return html_image, html.H3("Wgrane zdjęcie:")
     else:
         return None, None
+
+
+
+
+
 
 
 @app.callback(
@@ -251,25 +271,34 @@ def update_output_based_on_photo(button_clicks, photo_update):
     Output("no-lot-assigned", "is_open"),
     Output("invalid-input", "is_open"),
     Output("server-timeout", "is_open"),
+    Output("id_image_upload", "children"),
     Input("button_number", "n_clicks"),
     State("numer_dzialki", "value"),
 )
+
+
 def update_output_based_on_id(button_clicks, numer_dzialki):
     if button_clicks is not None:
         # alert
         if not numer_dzialki:
-            return None, True, False, False
+            return None, True, False, False, None
         try: 
             get_photo_from_id(numer_dzialki)
         except Exception as e:
             if (str(e) == "dupa"):
-                return None, False, True, False
+                return None, False, True, False, None
             else:
                 print(str(e))
-                return None, False, False, True
+                return None, False, False, True, None
         is_rzepak = predict_with_loaded_model(
             photo_path="./cuted_photo.jpg", model_path="trained_NN"
         )
+        test_png = 'cuted_photo.jpg'
+        test_base64 = base64.b64encode(open(test_png, 'rb').read()).decode('ascii')
+        html_image = [ html.Img(src='data:image/png;base64,{}'.format(test_base64),
+                                style={
+                                    "width": "100px",
+                                    "height": "100px"})]
         if is_rzepak == 0:
             is_rzepak = True
         else:
@@ -280,14 +309,14 @@ def update_output_based_on_id(button_clicks, numer_dzialki):
                 html.P(
                     className="ocena_text", children="Na działce znajduje się rzepak!"
                 ),
-            ], False, False, False
+            ], False, False, False,html_image
         else:
             return [
                 false,
                 html.P(className="ocena_text", children="Na działce nie ma rzepaku!"),
-            ], False, False, False
+            ], False, False, False, html_image
     else:
-        return None, False, False, False
+        return None, False, False, False, None
 
 
 if __name__ == "__main__":
