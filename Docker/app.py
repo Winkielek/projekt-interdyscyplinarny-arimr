@@ -11,7 +11,8 @@ from flask import Flask
 from tensorflow.keras.preprocessing import image
 
 from functions.Capturing import Capturing
-from functions.from_id_pipeline_no_imports import converter, cord_reader, get_photo_from_id
+from functions.from_id_pipeline_no_imports import (converter, cord_reader,
+                                                   get_photo_from_id)
 from functions.model_functions import predict_with_loaded_model
 
 UPLOAD_DIRECTORY = "/save_images"
@@ -288,7 +289,7 @@ def update_output_based_on_id(button_clicks, numer_dzialki):
             try:
                 get_photo_from_id(numer_dzialki)
             except Exception as e:
-                if str(e) == "dupa":
+                if str(e) == "ten_cenzuralny_exc":
                     return None, False, True, False, None
                 else:
                     print(str(e))
@@ -335,4 +336,4 @@ def update_output_based_on_id(button_clicks, numer_dzialki):
 
 
 if __name__ == "__main__":
-    app.run_server(host="0.0.0.0", port=5000, debug=True)
+    app.run_server(host="0.0.0.0", port=5000, debug=False)

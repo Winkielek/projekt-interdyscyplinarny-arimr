@@ -52,7 +52,7 @@ def cord_reader(plot_ids_list: list) -> dict:
             point = wkb.loads(hexlocation, hex=True)
             x_y = point.exterior.coords.xy
         except:
-            raise Exception("dupa")
+            raise Exception("ten_cenzuralny_exc")
 
         cords = []
         for i in range(len(x_y[0])):
