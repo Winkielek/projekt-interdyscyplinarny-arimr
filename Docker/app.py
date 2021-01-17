@@ -274,12 +274,11 @@ def update_output_based_on_photo(button_clicks, photo_update):
     Output("server-timeout", "is_open"),
     Output("id_image_upload", "children"),
     Input("button_number", "n_clicks"),
-    Input("iframe_map", "src"),
-    State("numer_dzialki", "value"),
+    Input("numer_dzialki", "value"),
 )
-def update_output_based_on_id(button_clicks, iframe_src, numer_dzialki):
+def update_output_based_on_id(button_clicks, numer_dzialki):
     trigger_name = dash.callback_context.triggered[0]["prop_id"].split(".")[0]
-    if trigger_name == "iframe_map":
+    if trigger_name == "numer_dzialki":
         return None, False, False, False, None
     else:
         if button_clicks is not None:
