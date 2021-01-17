@@ -104,34 +104,43 @@ app.layout = html.Div(
                 html.Div(id="div_3",
                          style={'overflow':"hidden"},
                          children=[
-                html.Div(
-                    id="wrapper_iframe_photo",
-                    children=[
-                        html.Iframe(
-                            id="iframe_map",
-                            style={
-                                "width": "200px",
-                                "height": "200px",
-                            },
-                            hidden=True,
-                        ),
-                    ],
-                        style={
-                            "float: left"
-                        "height": "45%",
-                        "width": "45%"
-                        },
-                ),
-
-                html.Div(
-                    id="id_image_upload",
+                
+                
+                html.Table(
+                    
+                    
+                        
+                    html.Tr(
+                        children=[
+                            html.Td(
+                                html.Iframe(
+                                    id="iframe_map",
+                                    style={
+                                        "width": "300px",
+                                        "height": "300px",
+                                    },
+                                    hidden=True,
+                                ),
+                            ),
+                            html.Td(
+                                html.Div(
+                                    id="id_image_upload",
+                                    style={
+                                        "float":"right",
+                                        "height": "100%",
+                                        "width": "100%"
+                                    }
+                                )
+                            )
+                        ]
+                    ),
                     style={
-                        "float":"right",
-                        "height": "45%",
-                        "width": "45%"
+                        "border": "none"
                     },
-                )]),
-                html.Br(),
+                )
+
+                ]),
+                
                 html.Button("Oceń", id="button_number"),
                 dcc.Loading(
                     id="loading-2",
@@ -171,6 +180,9 @@ app.layout = html.Div(
             ),
         ]),
     ],
+    style={
+        "margin": "40px"
+    }
 )
 
 
@@ -297,8 +309,8 @@ def update_output_based_on_id(button_clicks, numer_dzialki):
         test_base64 = base64.b64encode(open(test_png, 'rb').read()).decode('ascii')
         html_image = [ html.Img(src='data:image/png;base64,{}'.format(test_base64),
                                 style={
-                                    "width": "100px",
-                                    "height": "100px"})]
+                                    "width": "250%",
+                                    "height": "250%"})]
         if is_rzepak == 0:
             is_rzepak = True
         else:
